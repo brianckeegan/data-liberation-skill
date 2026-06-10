@@ -14,41 +14,43 @@ Loaded into a compatible agent (Claude Code, Claude.ai, VS Code Copilot, Cursor,
   - **L4 + Standards & Governance** — DCAT/PROV/FAIR naming + governance/ethics. Publishable responsibly.
   - **L5 + Publishing** — Datasette, Quarto site, Git LFS, DocumentCloud.
 
-  The agent infers the level from the request, states its assumption, executes, and offers the next rung — see SKILL.md's *The six levels* section.
-- **A six-phase workflow** — Survey → Scaffold → Extract → Tidy → Audit → Publish — mapping to CRISP-DM's data understanding → preparation → deployment phases and deliberately stopping where modeling begins. The phases describe *how* the work gets done within a project; the levels above describe *how far* a given engagement goes. Searchable against industry vocabulary (Goal Planning, Data Extraction, Data Cleaning and Transformation, Data Loading, Data Validation, Data Lineage, Data Observability, Data Governance, Data Maintenance) — see SKILL.md's vocabulary-alignment table.
+  The agent infers the level from the request, states its assumption, executes, and offers the next rung — see [SKILL.md](skills/data-liberation/SKILL.md)'s *The six levels* section.
+- **A six-phase workflow** — Survey → Scaffold → Extract → Tidy → Audit → Publish — mapping to CRISP-DM's data understanding → preparation → deployment phases and deliberately stopping where modeling begins. The phases describe *how* the work gets done within a project; the levels above describe *how far* a given engagement goes. Searchable against industry vocabulary (Goal Planning, Data Extraction, Data Cleaning and Transformation, Data Loading, Data Validation, Data Lineage, Data Observability, Data Governance, Data Maintenance) — see [SKILL.md](skills/data-liberation/SKILL.md)'s vocabulary-alignment table.
 Underneath the levels and phases, the skill carries a set of methods and conventions, each wired to the reference file (loaded on demand) that holds the detail:
 
-- **Toolchain decision trees** *(L0)* — match the input to the tool: pdfplumber vs. camelot for born-digital PDFs; tesseract / PaddleOCR / Surya for scans and images; `read_html` / `selectolax` / `lxml` for HTML/XML; `json_normalize` for JSON; `read_excel` / `openpyxl` for panel spreadsheets; `requests` + cache vs. headless browser vs. archived snapshots for the web. → the five [`extract-*.md`](references/extract-pdf.md) files (pdf · tabular · documents · web · images).
-- **A project template** *(L2+)* — immutable originals → processed tidy data → audit reports → lookups (crosswalks). Bootstraps single-source but is structured for multi-source from day one; fetched on demand from [`brianckeegan/data-liberation-template`](https://github.com/brianckeegan/data-liberation-template) by `scripts/scaffold.py`. → [`project-template.md`](references/project-template.md).
-- **Documentation and the contract framing** *(L1–L3)* — data dictionaries and pandera schemas as a *contract* the processed CSV obeys; concept catalogs as contracts at the cross-source-equivalence level; per-extract provenance; the five-dimension data-quality framework (availability / usability / reliability / relevance / presentation). → [`data-modeling.md`](references/data-modeling.md).
-- **A 9-step cleaning pipeline** *(L2)* — profile → structural fixes → exact + fuzzy deduplication (Jaro-Winkler / Levenshtein) → missing-value treatment (Rubin's MCAR/MAR/MNAR) → outlier detection (IQR + impossible-value ranges) → standardization → validation + reject port → PII redaction (presidio/scrubadub) → documentation, plus discovery, reconciliation against authoritative totals, the pre-extraction bulletproofing checklist, and the cron-driven recurring-refresh PR. → [`pipeline.md`](references/pipeline.md).
-- **Publishing surfaces** *(L5)* — Datasette (queryable SQLite + JSON API), a Quarto documentation site on GitHub Pages, Git LFS for bulk distribution, and DocumentCloud for the underlying source documents. → [`publishing.md`](references/publishing.md).
-- **A governance section** *(L4)* — license inheritance, data-subject considerations (CARE principles, out-of-scope use declarations), project-internal governance, and downstream accountability (error-reporting paths, citation guidance). → [`project-template.md`](references/project-template.md#governance).
-- **Movement context, standards, and the open-government landscape** *(L4 background — not a gate)* — the civic-data tradition (Sunlight, PDF Liberation, MuckRock, PUDL, BoulderPublicData) and its scholarly critiques (Baack, Schrock, Johnson, Casemajor); the standards the artifacts already informally implement (DCAT-US / W3C DCAT, PROV-O, DQV, DWBP, FAIR, the FAIRsharing / re3data / NIEM registries), each crosswalked to the artifact it matches; and the institutional/legal landscape (FOIA, M-13-13, the OPEN Government Data Act / Evidence Act, the DATA Act, data.gov / CKAN / Socrata, OGP, the International Open Data Charter). Privacy law and the CARE principles are the only *real gates*; everything else is for naming and optionally deepening what the pipeline already does. → [`context.md`](references/context.md).
+- **Toolchain decision trees** *(L0)* — match the input to the tool: pdfplumber vs. camelot for born-digital PDFs; tesseract / PaddleOCR / Surya for scans and images; `read_html` / `selectolax` / `lxml` for HTML/XML; `json_normalize` for JSON; `read_excel` / `openpyxl` for panel spreadsheets; `requests` + cache vs. headless browser vs. archived snapshots for the web. → the five [`extract-*.md`](skills/data-liberation/references/extract-pdf.md) files (pdf · tabular · documents · web · images).
+- **A project template** *(L2+)* — immutable originals → processed tidy data → audit reports → lookups (crosswalks). Bootstraps single-source but is structured for multi-source from day one; fetched on demand from [`brianckeegan/data-liberation-template`](https://github.com/brianckeegan/data-liberation-template) by [`scaffold.py`](skills/data-liberation/scripts/scaffold.py). → [`project-template.md`](skills/data-liberation/references/project-template.md).
+- **Documentation and the contract framing** *(L1–L3)* — data dictionaries and pandera schemas as a *contract* the processed CSV obeys; concept catalogs as contracts at the cross-source-equivalence level; per-extract provenance; the five-dimension data-quality framework (availability / usability / reliability / relevance / presentation). → [`data-modeling.md`](skills/data-liberation/references/data-modeling.md).
+- **A 9-step cleaning pipeline** *(L2)* — profile → structural fixes → exact + fuzzy deduplication (Jaro-Winkler / Levenshtein) → missing-value treatment (Rubin's MCAR/MAR/MNAR) → outlier detection (IQR + impossible-value ranges) → standardization → validation + reject port → PII redaction (presidio/scrubadub) → documentation, plus discovery, reconciliation against authoritative totals, the pre-extraction bulletproofing checklist, and the cron-driven recurring-refresh PR. → [`pipeline.md`](skills/data-liberation/references/pipeline.md).
+- **Publishing surfaces** *(L5)* — Datasette (queryable SQLite + JSON API), a Quarto documentation site on GitHub Pages, Git LFS for bulk distribution, and DocumentCloud for the underlying source documents. → [`publishing.md`](skills/data-liberation/references/publishing.md).
+- **A governance section** *(L4)* — license inheritance, data-subject considerations (CARE principles, out-of-scope use declarations), project-internal governance, and downstream accountability (error-reporting paths, citation guidance). → [`project-template.md`](skills/data-liberation/references/project-template.md#governance).
+- **Movement context, standards, and the open-government landscape** *(L4 background — not a gate)* — the civic-data tradition (Sunlight, PDF Liberation, MuckRock, PUDL, BoulderPublicData) and its scholarly critiques (Baack, Schrock, Johnson, Casemajor); the standards the artifacts already informally implement (DCAT-US / W3C DCAT, PROV-O, DQV, DWBP, FAIR, the FAIRsharing / re3data / NIEM registries), each crosswalked to the artifact it matches; and the institutional/legal landscape (FOIA, M-13-13, the OPEN Government Data Act / Evidence Act, the DATA Act, data.gov / CKAN / Socrata, OGP, the International Open Data Charter). Privacy law and the CARE principles are the only *real gates*; everything else is for naming and optionally deepening what the pipeline already does. → [`context.md`](skills/data-liberation/references/context.md).
 
-The skill triggers on phrases like "data liberation," "PDF extraction," "get the data out," "give me a CSV," "make this citable," "reproducible pipeline," "tidy data," "data dictionary," "crosswalk," "provenance," "reconcile," and "scrape this site" — and on any request that involves turning a document into a dataset someone else could reuse. See [SKILL.md](SKILL.md) for the full instructions.
+The skill triggers on phrases like "data liberation," "PDF extraction," "get the data out," "give me a CSV," "make this citable," "reproducible pipeline," "tidy data," "data dictionary," "crosswalk," "provenance," "reconcile," and "scrape this site" — and on any request that involves turning a document into a dataset someone else could reuse. See [SKILL.md](skills/data-liberation/SKILL.md) for the full instructions.
 
 ## Repository contents
 
 ```
 data-liberation-skill/
-├── SKILL.md           # Skill entry point (loaded on activation) — the six levels + workflow
-├── references/        # Toolchain + methodology docs (loaded on demand), grouped by level
-│   ├── extract-pdf.md        # L0: born-digital PDFs — pdfplumber, camelot, parser skeleton
-│   ├── extract-tabular.md    # L0: XLSX (incl. panel-format), CSV, Parquet, databases
-│   ├── extract-documents.md  # L0: HTML, XML, JSON, DOCX; docling/kreuzberg unified extractors
-│   ├── extract-web.md        # L0: web scraping — ethics, archives, protocols, dynamic pages
-│   ├── extract-images.md     # L0: images, OCR (tesseract/PaddleOCR/Surya), preprocessing, computer vision
-│   ├── data-modeling.md      # L1–L3: tidy, schema-as-contract, dictionary, concepts/crosswalks, provenance, validation, quality dimensions
-│   ├── pipeline.md           # L2: 9-step cleaning pipeline + discovery/audit/reconcile + bulletproofing + recurring refresh
-│   ├── project-template.md   # L2/L4: project skeleton spec + governance section
-│   ├── publishing.md         # L5: Datasette, Quarto site, Git LFS, DocumentCloud
-│   └── context.md            # L4 background (not a gate): movement history + critical perspectives, open-data standards, open-government landscape
-├── scripts/scaffold.py  # Fetches the template repo and renders it (L2+ only)
-└── RELEASING.md         # Lockstep version-bump procedure across skill + template repos
+├── skills/data-liberation/
+│   ├── SKILL.md              # Skill entry point (loaded on activation) — the six levels + workflow
+│   ├── references/           # Toolchain + methodology docs (loaded on demand), grouped by level
+│   │   ├── extract-pdf.md        # L0: born-digital PDFs — pdfplumber, camelot, parser skeleton
+│   │   ├── extract-tabular.md    # L0: XLSX (incl. panel-format), CSV, Parquet, databases
+│   │   ├── extract-documents.md  # L0: HTML, XML, JSON, DOCX; docling/kreuzberg unified extractors
+│   │   ├── extract-web.md        # L0: web scraping — ethics, archives, protocols, dynamic pages
+│   │   ├── extract-images.md     # L0: images, OCR (tesseract/PaddleOCR/Surya), preprocessing, computer vision
+│   │   ├── data-modeling.md      # L1–L3: tidy, schema-as-contract, dictionary, concepts/crosswalks, provenance, validation, quality dimensions
+│   │   ├── pipeline.md           # L2: 9-step cleaning pipeline + discovery/audit/reconcile + bulletproofing + recurring refresh
+│   │   ├── project-template.md   # L2/L4: project skeleton spec + governance section
+│   │   ├── publishing.md         # L5: Datasette, Quarto site, Git LFS, DocumentCloud
+│   │   └── context.md            # L4 background (not a gate): movement history + critical perspectives, open-data standards, open-government landscape
+│   └── scripts/
+│       └── scaffold.py       # Fetches the template repo and renders it (L2+ only)
+└── RELEASING.md              # Lockstep version-bump procedure across skill + template repos
 ```
 
-The working project template lives in a separate repo, [`brianckeegan/data-liberation-template`](https://github.com/brianckeegan/data-liberation-template), pinned to a commit SHA so scaffolded output is reproducible. `scripts/scaffold.py` fetches it at scaffold time so the skill repo stays small and an agent doesn't burn context on files it shouldn't be reading directly.
+The working project template lives in a separate repo, [`brianckeegan/data-liberation-template`](https://github.com/brianckeegan/data-liberation-template), pinned to a commit SHA so scaffolded output is reproducible. `skills/data-liberation/scripts/scaffold.py` fetches it at scaffold time so the skill repo stays small and an agent doesn't burn context on files it shouldn't be reading directly.
 
 ## Installation
 
@@ -99,9 +101,9 @@ Say you have `county-budget-2024.pdf` — a born-digital PDF with a few tables.
 
 The agent recognizes an extraction request, infers **L0**, and says so:
 
-> **Agent:** This reads like L0 — just the data. I'll start there. *(reads the PDF, picks `pdfplumber` from the [`extract-pdf.md`](references/extract-pdf.md) decision tree, writes the table out)* Done — `county-budget-2024.csv`, 412 rows × 7 columns. Want me to go to **L1** and add a data dictionary + provenance so this is citable?
+> **Agent:** This reads like L0 — just the data. I'll start there. *(reads the PDF, picks `pdfplumber` from the [`extract-pdf.md`](skills/data-liberation/references/extract-pdf.md) decision tree, writes the table out)* Done — `county-budget-2024.csv`, 412 rows × 7 columns. Want me to go to **L1** and add a data dictionary + provenance so this is citable?
 
-You have a CSV. Nothing else was created — no project, no scaffold. (If the PDF were a **scan**, the agent would route to [`extract-images.md`](references/extract-images.md) for the OCR path instead; a spreadsheet routes to [`extract-tabular.md`](references/extract-tabular.md), a web page to [`extract-web.md`](references/extract-web.md).)
+You have a CSV. Nothing else was created — no project, no scaffold. (If the PDF were a **scan**, the agent would route to [`extract-images.md`](skills/data-liberation/references/extract-images.md) for the OCR path instead; a spreadsheet routes to [`extract-tabular.md`](skills/data-liberation/references/extract-tabular.md), a web page to [`extract-web.md`](skills/data-liberation/references/extract-web.md).)
 
 ### L1 — make it citable
 
@@ -116,7 +118,7 @@ You have a CSV. Nothing else was created — no project, no scaffold. (If the PD
 
 ### L2 — someone can re-run this
 
-This is the first level that scaffolds a project. The agent runs `scripts/scaffold.py`, which fetches the [project template](https://github.com/brianckeegan/data-liberation-template) and renders a working repo:
+This is the first level that scaffolds a project. The agent runs `skills/data-liberation/scripts/scaffold.py`, which fetches the [project template](https://github.com/brianckeegan/data-liberation-template) and renders a working repo:
 
 ```
 county-budget/
@@ -136,9 +138,9 @@ uv run python -m scripts.pipeline # regenerate data/processed/ from data/origina
 
 ### L3–L5 — when the project grows
 
-- **L3 (harmonize)** — *"add last year's budget and make the categories comparable"* → a concept catalog with caveats so cross-year comparisons are honest. See [`data-modeling.md`](references/data-modeling.md#concept-catalogs).
-- **L4 (standards & governance)** — *"is this OK to publish, and can it federate into a catalog?"* → a governance section + optional DCAT/PROV/FAIR naming. See [`context.md`](references/context.md) and [`project-template.md`](references/project-template.md#governance).
-- **L5 (publish)** — *"put it online so people can query it"* → a Datasette instance, a Quarto docs site, Git LFS for the big files, DocumentCloud for the source PDFs. See [`publishing.md`](references/publishing.md).
+- **L3 (harmonize)** — *"add last year's budget and make the categories comparable"* → a concept catalog with caveats so cross-year comparisons are honest. See [`data-modeling.md`](skills/data-liberation/references/data-modeling.md#concept-catalogs).
+- **L4 (standards & governance)** — *"is this OK to publish, and can it federate into a catalog?"* → a governance section + optional DCAT/PROV/FAIR naming. See [`context.md`](skills/data-liberation/references/context.md) and [`project-template.md`](skills/data-liberation/references/project-template.md#governance).
+- **L5 (publish)** — *"put it online so people can query it"* → a Datasette instance, a Quarto docs site, Git LFS for the big files, DocumentCloud for the source PDFs. See [`publishing.md`](skills/data-liberation/references/publishing.md).
 
 ### Tips
 
