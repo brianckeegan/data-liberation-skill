@@ -19,7 +19,7 @@ Loaded into a compatible agent (Claude Code, Claude.ai, VS Code Copilot, Cursor,
 Underneath the levels and phases, the skill carries a set of methods and conventions, each wired to the reference file (loaded on demand) that holds the detail:
 
 - **Toolchain decision trees** *(L0)* — match the input to the tool: pdfplumber vs. camelot for born-digital PDFs; tesseract / PaddleOCR / Surya for scans and images; `read_html` / `selectolax` / `lxml` for HTML/XML; `json_normalize` for JSON; `read_excel` / `openpyxl` for panel spreadsheets; `requests` + cache vs. headless browser vs. archived snapshots for the web. → the five [`extract-*.md`](references/extract-pdf.md) files (pdf · tabular · documents · web · images).
-- **A project template** *(L2+)* — immutable originals → processed tidy data → audit reports → lookups (crosswalks). Bootstraps single-source but is structured for multi-source from day one; fetched on demand from [`brianckeegan/data-liberation-template`](https://github.com/brianckeegan/data-liberation-template) by `scripts/scaffold.py`. → [`project-template.md`](references/project-template.md).
+- **A project template** *(L2+)* — immutable originals → processed tidy data → audit reports → lookups (crosswalks). Bootstraps single-source but is structured for multi-source from day one; **bundled in this repo** at [`templates/project/`](templates/project/) and rendered into the user's working directory at scaffold time. → [`project-template.md`](references/project-template.md).
 - **Documentation and the contract framing** *(L1–L3)* — data dictionaries and pandera schemas as a *contract* the processed CSV obeys; concept catalogs as contracts at the cross-source-equivalence level; per-extract provenance; the five-dimension data-quality framework (availability / usability / reliability / relevance / presentation). → [`data-modeling.md`](references/data-modeling.md).
 - **A 9-step cleaning pipeline** *(L2)* — profile → structural fixes → exact + fuzzy deduplication (Jaro-Winkler / Levenshtein) → missing-value treatment (Rubin's MCAR/MAR/MNAR) → outlier detection (IQR + impossible-value ranges) → standardization → validation + reject port → PII redaction (presidio/scrubadub) → documentation, plus discovery, reconciliation against authoritative totals, the pre-extraction bulletproofing checklist, and the cron-driven recurring-refresh PR. → [`pipeline.md`](references/pipeline.md).
 - **Publishing surfaces** *(L5)* — Datasette (queryable SQLite + JSON API), a Quarto documentation site on GitHub Pages, Git LFS for bulk distribution, and DocumentCloud for the underlying source documents. → [`publishing.md`](references/publishing.md).
@@ -44,11 +44,12 @@ data-liberation-skill/
 │   ├── project-template.md   # L2/L4: project skeleton spec + governance section
 │   ├── publishing.md         # L5: Datasette, Quarto site, Git LFS, DocumentCloud
 │   └── context.md            # L4 background (not a gate): movement history + critical perspectives, open-data standards, open-government landscape
-├── scripts/scaffold.py  # Fetches the template repo and renders it (L2+ only)
-└── RELEASING.md         # Lockstep version-bump procedure across skill + template repos
+├── scripts/validate.py  # Lints templates/ and renders + smoke-tests the scaffold (CI)
+├── templates/project/   # The bundled project skeleton, rendered at scaffold time (L2+)
+└── RELEASING.md         # Single-repo release procedure
 ```
 
-The working project template lives in a separate repo, [`brianckeegan/data-liberation-template`](https://github.com/brianckeegan/data-liberation-template), pinned to a commit SHA so scaffolded output is reproducible. `scripts/scaffold.py` fetches it at scaffold time so the skill repo stays small and an agent doesn't burn context on files it shouldn't be reading directly.
+The working project template is **bundled in this repo** at [`templates/project/`](templates/project/) — token-bearing files carry a `.tmpl` suffix and `{{UPPER_SNAKE}}` slot-fills, everything else renders verbatim. There is no separate repo and no version pin: the template ships in the same commit as the skill, so what gets scaffolded is exactly what's in the tree (reproducibility comes from the shared commit, not a cross-repo SHA). Agents read `templates/` only when scaffolding (L2+); `scripts/validate.py` renders it and smoke-tests the result in CI.
 
 ## Installation
 
@@ -116,7 +117,7 @@ You have a CSV. Nothing else was created — no project, no scaffold. (If the PD
 
 ### L2 — someone can re-run this
 
-This is the first level that scaffolds a project. The agent runs `scripts/scaffold.py`, which fetches the [project template](https://github.com/brianckeegan/data-liberation-template) and renders a working repo:
+This is the first level that scaffolds a project. The agent renders the bundled [project template](templates/project/) into a working repo:
 
 ```
 county-budget/

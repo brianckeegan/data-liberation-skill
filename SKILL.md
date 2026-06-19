@@ -20,7 +20,7 @@ Each level *adds* to the one before. The levels describe **how far** a given eng
 | **L4** | + Standards & Governance | "publishable, responsibly" | DCAT / PROV / DQV / FAIR naming (optional, never a gate); a full governance section | [`context.md`](references/context.md), [`project-template.md`](references/project-template.md#governance) |
 | **L5** | + Publishing | "queryable, documented, distributed" | Datasette, a Quarto docs site, Git LFS, DocumentCloud | [`publishing.md`](references/publishing.md) |
 
-**Guardrail: L0 and L1 must NOT run `scripts/scaffold.py`.** Getting to a CSV is frictionless by design; the scaffold is an L2+ commitment. Emitting a stray project skeleton for a one-shot extraction is the single most common way this skill becomes an adoption blocker.
+**Guardrail: L0 and L1 must NOT scaffold a project.** Getting to a CSV is frictionless by design; the scaffold is an L2+ commitment. Emitting a stray project skeleton for a one-shot extraction is the single most common way this skill becomes an adoption blocker.
 
 ### How to surface levels — infer, confirm, climb
 
@@ -122,7 +122,7 @@ Write a one-page Survey note (it seeds the README). Decide whether this is **bes
 
 **Skip this entire phase at L0 and L1** — emit the data and its documentation directly to the user's working directory; do not generate a project skeleton.
 
-**New project (L2+):** Run `scripts/scaffold.py` (it fetches the template from [`brianckeegan/data-liberation-template`](https://github.com/brianckeegan/data-liberation-template), renders placeholders, and writes the project). Read [`references/project-template.md`](references/project-template.md) for what each file does and why. Do not invent a parallel structure. The skeleton, abbreviated:
+**New project (L2+):** Scaffold from the **bundled template** at [`templates/project/`](templates/project/) — render it into the user's working directory: for each file, strip a trailing `.tmpl` to get the output path, substitute the `{{UPPER_SNAKE}}` slot-fills (`PROJECT_NAME`, `PROJECT_SLUG`, `DESCRIPTION`, `AUTHOR`, `OWNER`, `CONSUMER_STACK`), and strip any `<!-- IF:FLAG -->…<!-- /IF -->` block whose flag is off. Read [`references/project-template.md`](references/project-template.md) for what each file does and why, and for the full slot-fill table. Write only into the user's directory, never into this skill's; leftover `{{ }}` is a bug. Do not invent a parallel structure. The skeleton, abbreviated:
 
 ```
 project-name/
@@ -190,8 +190,8 @@ The recurring-refresh pattern extends naturally: the cron-driven `discover → f
 **L0 / L1 skip the scaffold** — read the source, emit the CSV (and, at L1, the data dictionary + `provenance.csv` + a Survey/README note) straight to the user's working directory, then offer to climb. The steps below are for **L2+**:
 
 1. Produce the Survey notes inline from the user's source.
-2. Run `python scripts/scaffold.py --dest <path> --name <kebab-case> --description <…> --author <…> --owner <github-username>` — it fetches [`brianckeegan/data-liberation-template`](https://github.com/brianckeegan/data-liberation-template) at the pinned version and substitutes placeholders. Read [`references/project-template.md`](references/project-template.md) for the per-file rationale.
-3. Write the project files (README, pyproject.toml, schema.py, sources.py, an initial parser, AGENTS.md) to the user's working directory — not to this skill's directory. Adapt placeholder names to the actual project.
+2. Render the bundled template at [`templates/project/`](templates/project/) into the user's working directory: strip each `.tmpl` suffix, substitute the `{{UPPER_SNAKE}}` slot-fills (`PROJECT_NAME`, `PROJECT_SLUG` — a snake_case identifier derived from the name, `DESCRIPTION`, `AUTHOR`, `OWNER`, `CONSUMER_STACK`), and strip any off-flag `<!-- IF:FLAG -->…<!-- /IF -->` block. Read [`references/project-template.md`](references/project-template.md) for the per-file rationale and the full slot-fill table.
+3. Write the rendered files to the user's working directory — not to this skill's directory. Confirm no literal `{{ }}` survived.
 4. Suggest `uv sync && uv run pytest` to verify the scaffold; then `uv run python -m scripts.pipeline` for a first end-to-end run on a sample file.
 5. Iterate: each new vintage or quirk becomes a new parser file or test case.
 
@@ -229,9 +229,11 @@ Ten references, grouped by the level each primarily serves and loaded on demand.
 - [`references/publishing.md`](references/publishing.md) — **L5.** The four deployment surfaces: Datasette (queryable interface), Quarto (docs site), Git LFS (bulk distribution), DocumentCloud (source documents).
 - [`references/context.md`](references/context.md) — **L4 background, not a gate.** The civic-data movement and its critical perspectives, the open-data standards the artifacts already informally implement (DCAT / PROV / DQV / FAIR / DWBP + registries), and the open-government landscape (FOIA, federal mandates, civic tech, portals, the international frame). The only real gates here are privacy law and the CARE principles.
 
-## The template repo
+## The bundled template
 
-The working template lives at [`brianckeegan/data-liberation-template`](https://github.com/brianckeegan/data-liberation-template), pinned to a tagged release that pairs with this skill (`v0.1.0` of one matches `v0.1.0` of the other). `scripts/scaffold.py` fetches it on demand; you should not normally need to read it. It contains the `pyproject.toml` (uv-managed, Python 3.11+), the one-responsibility `scripts/*.py` modules connected by `pipeline.py`'s argparse CLI, the optional `scripts/concepts.py`, the `_quarto.yml` + `docs/*.qmd` seed, `.gitattributes` LFS rules, placeholder-filled `AGENTS.md` / `README.md` / dictionaries, baseline schema-drift tests, and `.github/workflows/` (tests on by default; refresh / publish / gh-pages opt-in). To inspect a rendered project, run `scripts/scaffold.py --dry-run` or scaffold into a temp dir. For why each piece is shaped this way, read [`references/project-template.md`](references/project-template.md).
+The project template ships **in this repo** at [`templates/project/`](templates/project/) — no separate repo, no fetch, no version pin. It contains the `pyproject.toml` (uv-managed, Python 3.11+), the one-responsibility `scripts/*.py` modules connected by `pipeline.py`'s argparse CLI, the optional `scripts/concepts.py`, the `_quarto.yml` + `docs/*.qmd` seed, `.gitattributes` LFS rules, `AGENTS.md` / `README.md` / dictionaries, baseline schema-drift tests, and `.github/workflows/` (tests on by default; refresh / publish / gh-pages opt-in via `*.yml.disabled`).
+
+Token-bearing files carry a `.tmpl` suffix and `{{UPPER_SNAKE}}` slot-fills; everything else renders verbatim. **Do not read `templates/` unless you are scaffolding (L2+)** — it is rendered, not reference material; for why each piece is shaped this way, read [`references/project-template.md`](references/project-template.md) instead. `scripts/validate.py` lints the templates and renders them to a temp dir (with `--smoke`, runs `uv sync && pytest` on the result), so a template edit that breaks the scaffold is caught in CI.
 
 ## Conventions worth defending
 

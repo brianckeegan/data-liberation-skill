@@ -1,6 +1,6 @@
 # Project Template: Layout, Conventions, Generated Scaffold
 
-This reference is the specification for what a liberation project's source tree looks like, what each file does, and which conventions are worth defending. The working version lives in a separate repo, [`brianckeegan/data-liberation-template`](https://github.com/brianckeegan/data-liberation-template), fetched by `scripts/scaffold.py` at scaffold time; this document is the prose explanation of every choice.
+This reference is the specification for what a liberation project's source tree looks like, what each file does, and which conventions are worth defending. The working version is **bundled in this repo** at [`templates/project/`](../templates/project/) and rendered into the user's working directory at scaffold time (see [Slot-fills and the render recipe](#slot-fills-and-the-render-recipe)); this document is the prose explanation of every choice.
 
 The structure is distilled from PUDL, BoulderPublicData/Election-Results, the IPEDS pipeline, and the NPP Tax Break project. The four converged independently on most of these conventions; the few divergences are documented inline.
 
@@ -121,11 +121,11 @@ Required sections:
 
 ### `pyproject.toml`
 
-`uv`-managed; Python 3.11+. Core deps: `pandas`, `pyarrow`, `pandera[pandas]`, `pydantic`, `requests`, `requests-cache`, `tenacity`, `structlog`, `tabulate`. Optional extras: `pdf` (pdfplumber, pypdf, camelot), `ocr` (pytesseract, pdf2image), `scrape` (httpx, selectolax, playwright), `tabular` (openpyxl, xlrd, pyreadstat), `publish` (datasette, sqlite-utils, datasette-publish-vercel), `analysis` (duckdb). Dev group: `pytest`, `pytest-recording`, `ruff`, `mypy`. Exact pin levels live in the [template repo](https://github.com/brianckeegan/data-liberation-template/blob/main/pyproject.toml); `uv sync --extra pdf --extra scrape` pulls only what the project uses. The `scrape` extra needs a one-time `uv run playwright install chromium`.
+`uv`-managed; Python 3.11+. Core deps: `pandas`, `pyarrow`, `pandera[pandas]`, `pydantic`, `requests`, `requests-cache`, `tenacity`, `structlog`, `tabulate`. Optional extras: `pdf` (pdfplumber, pypdf, camelot), `ocr` (pytesseract, pdf2image), `scrape` (httpx, selectolax, playwright), `tabular` (openpyxl, xlrd, pyreadstat), `publish` (datasette, sqlite-utils, datasette-publish-vercel), `analysis` (duckdb). Dev group: `pytest`, `pytest-recording`, `ruff`, `mypy`. Exact pin levels live in [`templates/project/pyproject.toml.tmpl`](../templates/project/pyproject.toml.tmpl); `uv sync --extra pdf --extra scrape` pulls only what the project uses. The `scrape` extra needs a one-time `uv run playwright install chromium`.
 
 ### `.gitignore`
 
-Standard Python plus: `.requests-cache.sqlite`, `.env`, `docs/variables.{md,csv}` *unignored* (the refresh PR carries them), `/_site/` + `/.quarto/`. **Commit `docs/_freeze/`** (Quarto's executed-code cache) so the GH Action re-renders without re-running every code block. Whether to commit `data/processed/*.csv` is project-dependent — template default commits CSV, ignores Parquet. Full file in the [template repo](https://github.com/brianckeegan/data-liberation-template/blob/main/.gitignore).
+Standard Python plus: `.requests-cache.sqlite`, `.env`, `docs/variables.{md,csv}` *unignored* (the refresh PR carries them), `/_site/` + `/.quarto/`. **Commit `docs/_freeze/`** (Quarto's executed-code cache) so the GH Action re-renders without re-running every code block. Whether to commit `data/processed/*.csv` is project-dependent — template default commits CSV, ignores Parquet. Full file at [`templates/project/.gitignore`](../templates/project/.gitignore).
 
 ### `.gitattributes`
 
@@ -133,7 +133,7 @@ Git LFS rules. Default patterns: `data/original/**/*.{pdf,zip,xlsx,xls,tar.gz,db
 
 ### `_quarto.yml`
 
-Declares a Quarto website project with `_site/` output, a navbar linking docs/index.qmd + data-dictionary + filter-pivot-recipes + methodology + changelog, and `execute: freeze: auto`. Full configuration in the [template repo](https://github.com/brianckeegan/data-liberation-template/blob/main/_quarto.yml); the toolchain-side rationale (the freeze pattern, the GH Action workflow, the one-time `quarto publish gh-pages` setup) is in [`publishing.md`](publishing.md).
+Declares a Quarto website project with `_site/` output, a navbar linking docs/index.qmd + data-dictionary + filter-pivot-recipes + methodology + changelog, and `execute: freeze: auto`. Full configuration at [`templates/project/_quarto.yml.tmpl`](../templates/project/_quarto.yml.tmpl); the toolchain-side rationale (the freeze pattern, the GH Action workflow, the one-time `quarto publish gh-pages` setup) is in [`publishing.md`](publishing.md).
 
 ## `scripts/` modules
 
@@ -434,20 +434,27 @@ Four subdirectories, each with a `.gitkeep`:
 
 The `.gitkeep` files keep the directories in version control even when empty. `.gitignore` selectively unignores; see the gitignore section above.
 
-## Slot-fills used by `scaffold.py`
+## Slot-fills and the render recipe
 
-The template files contain Jinja-style placeholders that `scripts/scaffold.py` (in this skill, not in the generated project) fills in:
+The template ships **in this repo** at [`templates/project/`](../templates/project/). Scaffolding is **agent-driven** — there is no scaffold script. Files that carry slot-fills have a `.tmpl` suffix and use `{{UPPER_SNAKE}}` tokens (matching `data-project-skill`); files with no slot-fills render verbatim.
 
-| Placeholder | Source | Example |
+To render a project, for each file under `templates/project/`:
+
+1. **Output path** — strip a trailing `.tmpl` (`pyproject.toml.tmpl` → `pyproject.toml`).
+2. **Substitute** every `{{UPPER_SNAKE}}` token from the fill-map below.
+3. **Conditionals** — strip any `<!-- IF:FLAG -->…<!-- /IF -->` block whose flag is off. (No flags are used yet; optional surfaces ship as `*.yml.disabled` for the operator to rename.)
+4. **Write** into the user's working directory — never into this skill's. A leftover `{{ }}` is a bug.
+
+| Token | Source | Example |
 |---|---|---|
-| `{{ project_name }}` | `--name` arg | `boulder-election-results` |
-| `{{ project_slug }}` | derived from `project_name` | `boulder_election_results` |
-| `{{ description }}` | `--description` arg | `Boulder County election results, 1980–present` |
-| `{{ author }}` | `--author` arg, falls back to `git config user.name <user.email>` | `Brian Keegan <bkeegan@…>` |
-| `{{ owner }}` | `--owner` arg, falls back to `git config user.name` | `BoulderPublicData` |
-| `{{ consumer_stack }}` | `--consumers` arg | `pandas`, `pandas,R`, `pandas,polars` |
+| `{{PROJECT_NAME}}` | the project name, kebab-case | `boulder-election-results` |
+| `{{PROJECT_SLUG}}` | snake_case identifier derived from the name | `boulder_election_results` |
+| `{{DESCRIPTION}}` | one-line description of what the project liberates | `Boulder County election results, 1980–present` |
+| `{{AUTHOR}}` | author string (fall back to `git config user.name <user.email>`) | `Brian Keegan <bkeegan@…>` |
+| `{{OWNER}}` | GitHub owner the project will live under (fall back to `git config user.name`) | `BoulderPublicData` |
+| `{{CONSUMER_STACK}}` | comma-separated consumer stacks | `pandas`, `pandas,R`, `pandas,polars` |
 
-The template uses these placeholders sparingly — most of the template is real, runnable content. The placeholders fill in identifiers and human-readable strings, not logic; the substitution is plain `str.replace`, so there's no conditional rendering. Toolchain-specific guidance lives in this skill's `references/toolchain-*.md`, not in the generated project.
+The template uses these tokens sparingly — most of it is real, runnable content; the tokens fill in identifiers and human-readable strings, not logic. `scripts/validate.py` enforces the contract: every `{{UPPER}}` token must appear in this fill-map (and in `DOCUMENTED_TOKENS` in `validate.py`), `.tmpl` suffixes and tokens must agree, and a render of the whole tree must `uv sync && pytest` under `--smoke`. When you add a token, add a row here **and** to `validate.py` in the same PR.
 
 ## Architectural principles
 
