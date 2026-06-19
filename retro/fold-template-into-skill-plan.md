@@ -9,7 +9,12 @@ design — adopt what fits, adapt what half-fits, and consciously skip what does
 **Baseline:** skill `v0.4.0`; template currently at `brianckeegan/data-liberation-template`,
 fetched by `scripts/scaffold.py` (SHA-pinned tarball), version-locked via `RELEASING.md` +
 `dispatch-to-template.yml` + `scaffold-e2e.yml` on both repos.
-**Status:** proposed; not executed. Sized one phase per PR.
+**Status:** **executed** on PR #27. Per maintainer decision the build went **agent-driven**
+(overriding §6.1's recommendation to keep `scaffold.py`) and adopted **cross-skill symmetry**
+with data-project (§6.3): `{{UPPER_SNAKE}}` tokens, `.tmpl` files, `scripts/validate.py`, and a
+single `validate.yml`. The "scaffold actually runs" guarantee is preserved by `validate.py --smoke`
+rendering `templates/project/` and running `uv sync` + ruff + pytest on the result. See
+`CHANGELOG.md`. The phases below are the plan as proposed; the executed shape differs only at §6.1/§6.3.
 
 > **Relationship to PR #27** (`retro/data-liberation-skill-revision-plan.md`): that plan's
 > Phases 3–4 are framed as *joint skill+template version bumps*. Folding the template in
